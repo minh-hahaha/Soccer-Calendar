@@ -72,4 +72,4 @@ The frontend will be available at `http://localhost:5173`
 
 - **Backend**: FastAPI, Python
 - **Frontend**: Vite, React, TypeScript, Tailwind CSS
-- **API**: API-Football (v3) # Soccer-Calendar
+- **API**: API-Football (v3) #

@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Team layout styles */
+.team-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .team-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  
+  .team-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    justify-content: flex-start;
+  }
+  
+  .team-crest {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+  }
+  
+  .match-time {
+    font-weight: bold;
+    text-align: center;
+    min-width: 4rem;
+  }
