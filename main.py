@@ -110,10 +110,10 @@ def get_teams(
 
 @app.get("/standings")
 def get_standings(
-    season:int = Query(2025),
-    matchday:int = Query(None),
+    season:int = Query(2024),
+    matchday:Optional[int] = Query(None),
 ):
-    cache_key = f"standings"
+    cache_key = f"standings_{season}_{matchday}"
     data = get_cache(cache_key)
 
     if not data:
@@ -121,15 +121,12 @@ def get_standings(
         headers = {
             "X-Auth-Token": API_FOOTBALL_KEY
         }
-        params = {
-        "season": season
-        }
+
+        url = f"{BASE_URL}/competitions/PL/standings/?season={season}"
         if matchday:
-            params["matchday"] = matchday
+            url += f"&matchday={matchday}"
 
-        url = f"{BASE_URL}/competitions/PL/standings"
-
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
             return HTTPException(status_code=response.status_code, detail=response.text)

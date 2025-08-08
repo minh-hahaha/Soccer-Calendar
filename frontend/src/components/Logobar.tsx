@@ -10,8 +10,8 @@ const Logobar = () => {
           {/* Logo/Brand */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <span className="text-purple-900 font-bold text-lg">⚽</span>
+              <div className="bg-white rounded-md flex items-center justify-center ">
+                <img src="/PL_Logo.png" alt="Premier League Logo" className="w-20 h-full object-contain" />
               </div>
               <span className="text-xl font-bold">Premier League</span>
             </Link>
