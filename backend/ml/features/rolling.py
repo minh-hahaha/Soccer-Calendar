@@ -1,8 +1,11 @@
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Tuple, Optional
+"""Rolling statistics feature helpers."""
+
 from datetime import datetime, timedelta
+from typing import Dict
+
+import pandas as pd
 from sqlalchemy.orm import Session
+
 from database.models import Match, Team
 from config import settings
 

@@ -1,5 +1,9 @@
+"""Standings feature utilities."""
+
 from typing import Dict, Optional
+
 from sqlalchemy.orm import Session
+
 from database.models import Match, StandingsSnapshot, Team
 
 

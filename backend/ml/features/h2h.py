@@ -1,5 +1,9 @@
-from typing import Dict, List, Optional
+"""Head-to-head feature helpers."""
+
+from typing import Dict, List
+
 from sqlalchemy.orm import Session
+
 from database.models import Match, HeadToHeadCache
 import json
 
