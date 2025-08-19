@@ -1,5 +1,15 @@
 import os
+
+"""Application configuration settings.
+
+The original file referenced ``os.getenv`` without importing the
+:mod:`os` module which resulted in a ``NameError`` during import.  Tests
+import the settings to configure various components so the module needs
+to load cleanly.  This patch adds the missing import and documents the
+module's purpose."""
+
 from typing import List
+
 from pydantic_settings import BaseSettings
 
 

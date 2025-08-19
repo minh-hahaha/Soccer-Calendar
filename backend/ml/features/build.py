@@ -1,13 +1,25 @@
+"""Utilities for building feature sets used by the machine learning pipeline.
+
+Historically this module relied on a number of imports that were missing
+from the file, leading to ``NameError`` or ``ImportError`` exceptions as
+soon as it was imported.  The test-suite imports the
+``get_features_for_match`` function from here, so it's important that the
+module can be imported without issues.  The patch adds the required
+typing, SQLAlchemy, and third‑party imports as well as a module level
+``typer.Typer`` application instance.
+"""
+
+from typing import Any, Dict, List
+import json
 import typer
-from typing import Dict, Any, List
 from sqlalchemy.orm import Session
+
 from database.db import SessionLocal
-from database.models import Match, FeaturesMatch
+from database.models import FeaturesMatch, Match
 from ml.features.rolling import get_match_form_features
 from ml.features.standings import get_match_standings_features
 from ml.features.h2h import get_match_h2h_features
 from config import settings
-import json
 
 app = typer.Typer()
 
