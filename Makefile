@@ -61,14 +61,14 @@ type-check: ## Type check with mypy
 
 # Database commands
 db-migrate: ## Run database migrations
-	alembic upgrade head
+	cd backend/database && alembic upgrade head
 
 db-rollback: ## Rollback last migration
-	alembic downgrade -1
+	cd backend/database && alembic downgrade -1
 
 db-reset: ## Reset database (drop and recreate)
-	alembic downgrade base
-	alembic upgrade head
+	cd backend/database && alembic downgrade base
+	cd backend/database && alembic upgrade head
 
 # Full pipeline
 pipeline: setup ingest-teams ingest-matches ingest-standings build-features train-sample serve ## Run full pipeline with sample data
