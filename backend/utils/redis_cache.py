@@ -2,6 +2,9 @@ import redis
 import os
 from dotenv import load_dotenv
 import json
+import pickle
+from typing import Any, Optional
+from config import settings
 
 load_dotenv()
 

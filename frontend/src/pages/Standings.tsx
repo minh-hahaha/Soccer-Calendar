@@ -20,8 +20,8 @@ export default function Standings() {
 
   useEffect(() => {
     const url = matchday 
-      ? `http://localhost:8000/standings/?season=${season}&matchday=${matchday}`
-      : `http://localhost:8000/standings/?season=${season}`;
+      ? `http://localhost:8000/v1/standings/?season=${season}&matchday=${matchday}`
+      : `http://localhost:8000/v1/standings/?season=${season}`;
 
     fetch(url)
       .then((res) => res.json())
