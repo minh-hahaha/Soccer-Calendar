@@ -257,10 +257,6 @@ const Fixtures = () => {
                       </p>
                     </div>
                   )}
-                  {/* Prediction Display - Always show predictions */}
-                  <div className="mt-4">
-                    <PredictionDisplay matchId={match.id} compact={true} />
-                  </div>
                 </div>
               ))}
             </div>

@@ -1,11 +1,11 @@
 import typer
 from typing import Optional
 from sqlalchemy.orm import Session
-from backend.database.db import SessionLocal, engine
-from backend.database.models import Base, Team, Match, StandingsSnapshot
-from backend.services.client import FootballDataClient
-from backend.services.mappers import map_team, map_match, map_standings_snapshot
-from backend.config import settings
+from database.db import SessionLocal, engine
+from database.models import Base, Team, Match, StandingsSnapshot
+from services.client import FootballDataClient
+from services.mappers import map_team, map_match, map_standings_snapshot
+from config import settings
 
 app = typer.Typer()
 

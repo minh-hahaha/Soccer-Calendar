@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict
 import joblib
 import os
 import json
@@ -282,3 +282,99 @@ def get_match_features(
         features=features,
         built_at=built_at
     )
+
+
+@router.get("/analysis", response_model=Dict)
+def analyze_predictions(
+    days_back: int = Query(7, description="Number of days back to analyze"),
+    season: Optional[int] = Query(None, description="Specific season to analyze"),
+    matchday: Optional[int] = Query(None, description="Specific matchday to analyze"),
+    db: Session = Depends(get_db)
+):
+    """Analyze recent prediction errors and performance"""
+    from ml.evaluation.learn_from_mistakes import PredictionErrorAnalyzer
+    
+    analyzer = PredictionErrorAnalyzer(db)
+    
+    df = analyzer.get_finished_matches_with_predictions(
+        season=season,
+        matchday=matchday,
+        days_back=days_back
+    )
+    
+    if df.empty:
+        raise HTTPException(status_code=404, detail="No finished matches with predictions found")
+    
+    analysis = analyzer.analyze_prediction_errors(df)
+    return analysis
+
+
+@router.post("/retrain")
+def retrain_model(
+    algorithm: str = Query("xgb", description="Algorithm: xgb, rf, lr"),
+    days_back: int = Query(30, description="Include matches from last N days"),
+    error_weighting: bool = Query(True, description="Apply error weighting to focus on mistakes"),
+    db: Session = Depends(get_db)
+):
+    """Retrain model with new finished matches and learn from mistakes"""
+    from ml.evaluation.learn_from_mistakes import ModelRetrainer
+    
+    try:
+        retrainer = ModelRetrainer(db)
+        result = retrainer.retrain_model(
+            algorithm=algorithm,
+            new_matches_days_back=days_back,
+            error_weighting=error_weighting
+        )
+        
+        if result.get("error"):
+            raise HTTPException(status_code=500, detail=result["error"])
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Retraining failed: {str(e)}")
+
+
+@router.get("/compare")
+def compare_models(
+    days_back: int = Query(7, description="Number of days back to compare"),
+    algorithm: str = Query("xgb", description="Algorithm to retrain with"),
+    db: Session = Depends(get_db)
+):
+    """Compare old vs new model performance on recent data"""
+    from ml.evaluation.learn_from_mistakes import PredictionErrorAnalyzer, ModelRetrainer
+    
+    analyzer = PredictionErrorAnalyzer(db)
+    
+    # Get recent finished matches
+    df = analyzer.get_finished_matches_with_predictions(days_back=days_back)
+    
+    if df.empty:
+        raise HTTPException(status_code=404, detail="No finished matches found for comparison")
+    
+    # Analyze current performance
+    current_analysis = analyzer.analyze_prediction_errors(df)
+    
+    # Retrain model
+    retrainer = ModelRetrainer(db)
+    retrain_result = retrainer.retrain_model(
+        algorithm=algorithm,
+        new_matches_days_back=days_back,
+        error_weighting=True
+    )
+    
+    if retrain_result.get("error"):
+        raise HTTPException(status_code=500, detail=retrain_result["error"])
+    
+    # Calculate improvement
+    accuracy_improvement = retrain_result['metrics']['val_accuracy'] - current_analysis['overall_accuracy']
+    logloss_improvement = current_analysis['average_log_loss'] - retrain_result['metrics']['val_logloss']
+    
+    return {
+        "current_performance": current_analysis,
+        "new_performance": retrain_result,
+        "improvement": {
+            "accuracy_improvement": accuracy_improvement,
+            "logloss_improvement": logloss_improvement
+        }
+    }

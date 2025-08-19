@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 from datetime import datetime
-from backend.database.models import Team, Match, StandingsSnapshot, Lineup
+from database.models import Team, Match, StandingsSnapshot, Lineup
 
 
 def map_team(team_data: Dict[str, Any]) -> Team:

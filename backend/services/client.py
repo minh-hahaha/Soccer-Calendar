@@ -4,7 +4,7 @@ import json
 import os
 from typing import Dict, Any, Optional
 from datetime import datetime
-from backend.config import settings
+from config import settings
 
 
 class FootballDataClient:
@@ -81,12 +81,16 @@ class FootballDataClient:
         else:
             raise Exception(f"API request failed: {response.status_code} - {response.text}")
     
-    def get_matches(self, season: int, competition_code: str = None) -> Dict[str, Any]:
+    def get_matches(self, season: int, competition_code: str = None, matchday: int = None) -> Dict[str, Any]:
         """Get matches for a season"""
         if competition_code is None:
             competition_code = settings.competition_code
         
-        return self._make_request(f"competitions/{competition_code}/matches", {"season": season})
+        params = {"season": season}
+        if matchday:
+            params["matchday"] = matchday
+        
+        return self._make_request(f"competitions/{competition_code}/matches", params)
     
     def get_standings(self, season: int, competition_code: str = None) -> Dict[str, Any]:
         """Get standings for a season"""

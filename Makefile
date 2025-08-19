@@ -84,3 +84,23 @@ serve-existing: ## Start existing API server (legacy)
 
 test-integration: ## Test the integrated API
 	python scripts/integrate_ml.py
+
+# Learning from mistakes commands
+learn-analyze: ## Analyze recent prediction errors
+	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --days-back 7
+
+learn-retrain: ## Retrain model with new data and learn from mistakes
+	cd backend && source venv/bin/activate && python -m ml.training.learn retrain --algorithm xgb --days-back 30
+
+learn-compare: ## Compare old vs new model performance
+	cd backend && source venv/bin/activate && python -m ml.training.learn compare --days-back 7 --algorithm xgb
+
+learn-monitor: ## Monitor prediction performance continuously
+	cd backend && source venv/bin/activate && python -m ml.training.learn monitor --interval-hours 24 --auto-retrain
+
+# Quick analysis commands
+analyze-matchday: ## Analyze predictions for specific matchday
+	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --matchday 1 --output-file analysis_matchday1.json
+
+analyze-season: ## Analyze predictions for current season
+	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --season 2024 --output-file analysis_season2024.json

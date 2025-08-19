@@ -4,10 +4,10 @@ Football Match Prediction Service CLI
 """
 
 import typer
-from backend.services.commands import app as ingest_app
-from backend.ml.features.build import app as features_app
-from backend.ml.training.train import app as train_app
-from backend.ml.evaluation.eval import app as eval_app
+from services.commands import app as ingest_app
+from ml.features.build import app as features_app
+from ml.training.train import app as train_app
+from ml.evaluation.eval import app as eval_app
 
 app = typer.Typer()
 
@@ -22,7 +22,7 @@ app.add_typer(eval_app, name="eval", help="Model evaluation commands")
 def serve():
     """Start the FastAPI server"""
     import uvicorn
-    uvicorn.run("app.api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
 @app.command()
@@ -31,8 +31,8 @@ def setup():
     typer.echo("Setting up Football Match Prediction Service...")
     
     # Create database tables
-    from app.db import engine
-    from app.models import Base
+    from database.db import engine
+    from database.models import Base
     
     typer.echo("Creating database tables...")
     Base.metadata.create_all(bind=engine)
@@ -40,7 +40,7 @@ def setup():
     
     # Create artifacts directory
     import os
-    from app.config import settings
+    from config import settings
     
     os.makedirs(settings.model_dir, exist_ok=True)
     typer.echo(f"Model directory created: {settings.model_dir}")
