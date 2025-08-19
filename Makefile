@@ -11,28 +11,28 @@ install: ## Install dependencies
 	pip install -r requirements.txt
 
 setup: ## Setup the application (database, directories)
-	python -m backend setup
+	python -m backend.cli setup
 
 test: ## Run tests
 	pytest tests/ -v
 
 train-sample: ## Train model with sample data
-	python -m backend train fit --algo xgb --use-sample
+	python -m backend.cli train fit --algo xgb --use-sample
 
 train-real: ## Train model with real data (requires API key)
-	python -m backend train fit --algo xgb --seasons 2020,2021,2022,2023 --valid 2024
+	python -m backend.cli train fit --algo xgb --seasons 2020,2021,2022,2023 --valid 2024
 
 ingest-teams: ## Ingest teams data
-	python -m backend ingest teams
+	python -m backend.cli ingest teams
 
 ingest-matches: ## Ingest matches data for current season
-	python -m backend ingest matches --season 2024
+	python -m backend.cli ingest matches --season 2024
 
 ingest-standings: ## Ingest standings data for current season
-	python -m backend ingest standings --season 2024
+	python -m backend.cli ingest standings --season 2024
 
 build-features: ## Build features for current season
-	python -m backend features build --season 2024
+	python -m backend.cli features build --season 2024
 
 serve: ## Start the combined API server
 	uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
@@ -51,13 +51,13 @@ docker-run: ## Run Docker container
 
 # Development commands
 format: ## Format code with black
-	black backend/ tests/
+	black backend/ tests/ app/
 
 lint: ## Lint code with flake8
-	flake8 backend/ tests/
+	flake8 backend/ tests/ app/
 
 type-check: ## Type check with mypy
-	mypy backend/
+	mypy backend/ app/
 
 # Database commands
 db-migrate: ## Run database migrations
@@ -87,20 +87,20 @@ test-integration: ## Test the integrated API
 
 # Learning from mistakes commands
 learn-analyze: ## Analyze recent prediction errors
-	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --days-back 7
+	python -m backend.ml.training.learn analyze --days-back 7
 
 learn-retrain: ## Retrain model with new data and learn from mistakes
-	cd backend && source venv/bin/activate && python -m ml.training.learn retrain --algorithm xgb --days-back 30
+	python -m backend.ml.training.learn retrain --algorithm xgb --days-back 30
 
 learn-compare: ## Compare old vs new model performance
-	cd backend && source venv/bin/activate && python -m ml.training.learn compare --days-back 7 --algorithm xgb
+	python -m backend.ml.training.learn compare --days-back 7 --algorithm xgb
 
 learn-monitor: ## Monitor prediction performance continuously
-	cd backend && source venv/bin/activate && python -m ml.training.learn monitor --interval-hours 24 --auto-retrain
+	python -m backend.ml.training.learn monitor --interval-hours 24 --auto-retrain
 
 # Quick analysis commands
 analyze-matchday: ## Analyze predictions for specific matchday
-	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --matchday 1 --output-file analysis_matchday1.json
+	python -m backend.ml.training.learn analyze --matchday 1 --output-file analysis_matchday1.json
 
 analyze-season: ## Analyze predictions for current season
-	cd backend && source venv/bin/activate && python -m ml.training.learn analyze --season 2024 --output-file analysis_season2024.json
+	python -m backend.ml.training.learn analyze --season 2024 --output-file analysis_season2024.json
