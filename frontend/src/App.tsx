@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Standings from "./pages/Standings";
 import Fixtures from "./pages/Fixtures"; // your existing page
 import Logobar from "./components/Logobar";
+import FantasyFootball from "./pages/FantasyFootball";
 
 function App() {
   return (
@@ -11,6 +12,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Fixtures />} />
           <Route path="/standings" element={<Standings />} />
+          <Route path="/fantasy" element={<FantasyFootball />} />
+
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,39 +1,65 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.main import router
+
+from backend.api import original as original_api
+# Import the new AI agents
+from backend.api.fantasy_agent import router as fantasy_agent_router
+from backend.database import db_manager
+
+load_dotenv()
+
+# Initialize database tables
+db_manager.create_tables()
 
 app = FastAPI(
-    title="Football API",
-    description="A simple REST API for football data using the football-data.org API",
-    version="1.0.0"
+    title="Premier League AI Analytics w/ Fantasy Football",
+    description="Advanced Premier League analytics with AI agents for match analysis and fantasy football",
+    version="2.0.0",
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include the router
-app.include_router(router, prefix="/v1")
+app.include_router(original_api.router, prefix="/v1", tags=["Football Data"])
+# app.include_router(match_agent_router, prefix="/agent", tags=["Match Analysis Agent"])
+app.include_router(
+    fantasy_agent_router, prefix="/fantasy", tags=["Fantasy Football Agent"]
+)
+
 
 @app.get("/")
-def root():
+def read_root():
     return {
-        "message": "Football API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "endpoints": {
-            "fixtures": "/v1/fixtures",
-            "standings": "/v1/standings", 
-            "teams": "/v1/teams",
-            "head2head": "/v1/head2head?matchId=123"
-        }
+        "message": "Premier League AI Analytics API",
+        "version": "2.0.0",
+        "features": [
+            "Match fixtures and results",
+            "League standings",
+            "AI-powered match analysis",
+            "Fantasy Football assistant",
+            "Market intelligence",
+            "Transfer recommendations",
+        ],
+        "agents": {
+            #  "match_analyst": "/agent/analyze",
+            "fantasy_assistant": "/fantasy/analyze"
+        },
     }
 
+
 @app.get("/health")
-def health():
-    return {"status": "healthy"}
+def health_check():
+    return {
+        "status": "healthy",
+        "version": "2.0.0",
+        "agents_status": {
+            #   "match_agent": "operational",
+            "fantasy_agent": "operational"
+        },
+    }
