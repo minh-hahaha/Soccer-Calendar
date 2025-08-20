@@ -1,5 +1,5 @@
 from typing import NoReturn
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, Dict, List, Any, Union
 import requests
 import os
@@ -8,9 +8,6 @@ import json
 from dataclasses import dataclass, asdict
 from enum import Enum
 import statistics
-from sqlalchemy.orm import Session
-
-from ..database import get_db, db_manager
 
 router = APIRouter()
 
@@ -87,29 +84,9 @@ class FantasyFootballAgent:
         self.bootstrap_data = None
         self.fixtures_data = None
     
-    def initialize_data(self, db: Session = None):
+    def initialize_data(self):
         """ Initialize FPL data - call before analysis"""
         try:
-            # Try to get data from database first
-            if db:
-                bootstrap_db = db_manager.get_current_bootstrap_data(db)
-                fixtures_db = db_manager.get_current_fixtures_data(db)
-                
-                # Check if we have fresh data in database
-                if bootstrap_db and bootstrap_db.is_fresh(max_age_hours=6):
-                    self.bootstrap_data = bootstrap_db.data
-                    self.current_gameweek = self._find_current_gameweek()
-                    print("Using cached bootstrap data from database")
-                
-                if fixtures_db and fixtures_db.is_fresh(max_age_hours=6):
-                    self.fixtures_data = fixtures_db.data
-                    print("Using cached fixtures data from database")
-                
-                # If we have both datasets from cache, return early
-                if self.bootstrap_data and self.fixtures_data:
-                    return True
-            
-            # If no fresh data in database, fetch from API
             print("Fetching fresh data from FPL API...")
             
             # get bootstrap data (players, teams, gameweeks)
@@ -120,20 +97,10 @@ class FantasyFootballAgent:
                 # find current gameweek
                 self.current_gameweek = self._find_current_gameweek()
                 
-                # Save to database if we have a database session
-                if db and self.current_gameweek:
-                    db_manager.save_bootstrap_data(db, self.current_gameweek, self.bootstrap_data)
-                    print(f"Saved bootstrap data to database for gameweek {self.current_gameweek}")
-                
                 # get fixtures data
                 fixtures_response = requests.get(f"{self.fpl_api_base}/fixtures/")
                 if fixtures_response.status_code == 200:
                     self.fixtures_data = fixtures_response.json()
-                    
-                    # Save to database if we have a database session
-                    if db and self.current_gameweek:
-                        db_manager.save_fixtures_data(db, self.current_gameweek, self.fixtures_data)
-                        print(f"Saved fixtures data to database for gameweek {self.current_gameweek}")
                     
                 return True
         except Exception as e:
@@ -154,32 +121,11 @@ class FantasyFootballAgent:
     def analyze_fantasy_strategy(self, analysis_types: List[FantasyAdviceType], 
                                 budget: float = 100.0,
                                 current_team: Optional[List[int]] = None,
-                                gameweeks_ahead: int = 5,
-                                db: Session = None) -> Dict[str, Any]:
+                                gameweeks_ahead: int = 5) -> Dict[str, Any]:
         """ Main entry point for fantasy analysis"""
         if not self.bootstrap_data:
-            if not self.initialize_data(db):
+            if not self.initialize_data():
                 raise HTTPException(status_code=500, detail="Failed to initialize data")
-
-        # Check for cached analysis result
-        if db:
-            cache_key = {
-                "analysis_types": [at.value for at in analysis_types],
-                "budget": budget,
-                "current_team": current_team,
-                "gameweeks_ahead": gameweeks_ahead
-            }
-            
-            cached_result = db_manager.get_cached_analysis(
-                db, 
-                "fantasy_strategy", 
-                self.current_gameweek, 
-                cache_key
-            )
-            
-            if cached_result:
-                print("Using cached analysis result")
-                return cached_result.result
         
         analysis_results = {
             "gameweek": self.current_gameweek,
@@ -206,25 +152,6 @@ class FantasyFootballAgent:
         # Generate overall agent summary
         analysis_results["agent_summary"] = self._generate_fantasy_summary(analysis_results)
         
-        # Cache the result if we have a database session
-        if db:
-            cache_key = {
-                "analysis_types": [at.value for at in analysis_types],
-                "budget": budget,
-                "current_team": current_team,
-                "gameweeks_ahead": gameweeks_ahead
-            }
-            
-            db_manager.save_analysis_cache(
-                db, 
-                "fantasy_strategy", 
-                self.current_gameweek, 
-                cache_key, 
-                analysis_results,
-                cache_duration_hours=2
-            )
-            print("Cached analysis result")
-
         return analysis_results
 
     def _get_market_insights(self) -> Dict[str, Any]:

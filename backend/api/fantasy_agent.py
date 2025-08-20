@@ -1,11 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Query, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Query
 
 from .ai_agent import FantasyAdviceType, FantasyFootballAgent
-from ..database import get_db
 
 router = APIRouter()
 
@@ -16,8 +14,7 @@ def analyze_fantasy_strategy(
     analysis_types: str = Query("transfers,captain,differential", description="Comma-separated analysis types"),
     budget: float = Query(100.0, description="Available budget in millions"),
     gameweeks_ahead: int = Query(5, description="Number of gameweeks to analyze ahead"),
-    current_team: Optional[str] = Query(None, description="Comma-separated player IDs (current team)"),
-    db: Session = Depends(get_db)
+    current_team: Optional[str] = Query(None, description="Comma-separated player IDs (current team)")
 ):
     """
     Get comprehensive Fantasy Football analysis and recommendations
@@ -44,18 +41,16 @@ def analyze_fantasy_strategy(
         analysis_types=requested_types,
         budget=budget,
         current_team=current_team_ids,
-        gameweeks_ahead=gameweeks_ahead,
-        db=db
+        gameweeks_ahead=gameweeks_ahead
     )
 
 @router.get("/captain-analysis")
 def get_captain_analysis(
-    gameweeks_ahead: int = Query(1, description="Gameweeks to analyze"),
-    db: Session = Depends(get_db)
+    gameweeks_ahead: int = Query(1, description="Gameweeks to analyze")
 ):
     """Get detailed captain analysis"""
     if not fantasy_agent.bootstrap_data:
-        fantasy_agent.initialize_data(db)
+        fantasy_agent.initialize_data()
     
     return {
         "captain_options": fantasy_agent._analyze_captain_options(gameweeks_ahead),
@@ -66,12 +61,11 @@ def get_captain_analysis(
 @router.get("/transfer-targets")
 def get_transfer_targets(
     budget: float = Query(100.0), 
-    position: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
+    position: Optional[str] = Query(None)
 ):
     """Get transfer targets by position"""
     if not fantasy_agent.bootstrap_data:
-        fantasy_agent.initialize_data(db)
+        fantasy_agent.initialize_data()
     
     transfers = fantasy_agent._analyze_transfers(budget)
     
@@ -90,10 +84,10 @@ def get_transfer_targets(
     }
 
 @router.get("/market-watch")
-def get_market_insights(db: Session = Depends(get_db)):
+def get_market_insights():
     """Get current FPL market insights"""
     if not fantasy_agent.bootstrap_data:
-        fantasy_agent.initialize_data(db)
+        fantasy_agent.initialize_data()
     
     return {
         "market_insights": fantasy_agent._get_market_insights(),
@@ -103,12 +97,11 @@ def get_market_insights(db: Session = Depends(get_db)):
 
 @router.get("/differentials")
 def get_differential_picks(
-    max_ownership: float = Query(5.0, description="Maximum ownership percentage"),
-    db: Session = Depends(get_db)
+    max_ownership: float = Query(5.0, description="Maximum ownership percentage")
 ):
     """Get differential pick recommendations"""
     if not fantasy_agent.bootstrap_data:
-        fantasy_agent.initialize_data(db)
+        fantasy_agent.initialize_data()
     
     return {
         "differentials": fantasy_agent._analyze_differential_picks(),
@@ -117,7 +110,7 @@ def get_differential_picks(
     }
 
 @router.get("/health")
-def fantasy_agent_health(db: Session = Depends(get_db)):
+def fantasy_agent_health():
     """Health check for fantasy agent"""
     return {
         "status": "ok",
@@ -127,37 +120,3 @@ def fantasy_agent_health(db: Session = Depends(get_db)):
         "capabilities": [e.value for e in FantasyAdviceType]
     }
 
-@router.get("/cache-status")
-def get_cache_status(db: Session = Depends(get_db)):
-    """Get cache status and statistics"""
-    from ..database import AnalysisCache, BootstrapData, FixturesData
-    
-    # Get current data status
-    bootstrap = db_manager.get_current_bootstrap_data(db)
-    fixtures = db_manager.get_current_fixtures_data(db)
-    
-    # Get cache statistics
-    cache_count = db.query(AnalysisCache).count()
-    expired_count = db.query(AnalysisCache).filter(AnalysisCache.expires_at < datetime.utcnow()).count()
-    
-    return {
-        "bootstrap_data": {
-            "available": bootstrap is not None,
-            "gameweek": bootstrap.gameweek if bootstrap else None,
-            "fresh": bootstrap.is_fresh() if bootstrap else False,
-            "last_updated": bootstrap.updated_at.isoformat() if bootstrap and bootstrap.updated_at else None
-        },
-        "fixtures_data": {
-            "available": fixtures is not None,
-            "gameweek": fixtures.gameweek if fixtures else None,
-            "fresh": fixtures.is_fresh() if fixtures else False,
-            "last_updated": fixtures.updated_at.isoformat() if fixtures and fixtures.updated_at else None
-        },
-        "analysis_cache": {
-            "total_entries": cache_count,
-            "expired_entries": expired_count,
-            "active_entries": cache_count - expired_count
-        },
-        "current_gameweek": fantasy_agent.current_gameweek,
-        "timestamp": datetime.utcnow().isoformat()
-    }

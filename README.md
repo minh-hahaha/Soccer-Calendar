@@ -23,9 +23,8 @@ A comprehensive REST API for football data and AI-powered Fantasy Football analy
 # Copy environment template
 cp env.example .env
 
-# Edit .env with your API key and database configuration
+# Edit .env with your API key
 FD_API_KEY=your_football_data_api_key_here
-DATABASE_URL=postgresql://username:password@localhost:5432/fantasy_football
 ```
 
 ### 2. Install Dependencies
@@ -38,22 +37,7 @@ pip install -r requirements.txt
 cd frontend && npm install
 ```
 
-### 3. Database Setup
 
-```bash
-# Create PostgreSQL database
-createdb fantasy_football
-
-# Initialize database tables
-cd backend
-python db_manager.py setup
-
-# Load initial FPL data
-python db_manager.py load
-
-# Load initial football data
-python db_manager.py load-football
-```
 
 ### 4. Start the API
 
@@ -72,18 +56,16 @@ uvicorn main:app --reload
 - **Fixtures**: http://localhost:8000/v1/fixtures
 - **Standings**: http://localhost:8000/v1/standings
 - **Fantasy Analysis**: http://localhost:8000/fantasy/analyze
-- **Fantasy Cache Status**: http://localhost:8000/fantasy/cache-status
-- **Football Cache Status**: http://localhost:8000/v1/cache-status
+
 
 ## API Endpoints
 
 ### Football Data (v1)
-- `GET /v1/fixtures` - Get match fixtures (cached)
-- `GET /v1/finished-matches` - Get completed matches (cached)
-- `GET /v1/standings` - Get current league standings (cached)
-- `GET /v1/teams` - Get all teams (cached)
-- `GET /v1/head2head?matchId=123` - Get head-to-head stats (cached)
-- `GET /v1/cache-status` - Football data cache status
+- `GET /v1/fixtures` - Get match fixtures
+- `GET /v1/finished-matches` - Get completed matches
+- `GET /v1/standings` - Get current league standings
+- `GET /v1/teams` - Get all teams
+- `GET /v1/head2head?matchId=123` - Get head-to-head stats
 
 ### Fantasy Football Agent
 - `GET /fantasy/analyze` - Comprehensive fantasy analysis
@@ -91,7 +73,7 @@ uvicorn main:app --reload
 - `GET /fantasy/transfer-targets` - Transfer recommendations
 - `GET /fantasy/market-watch` - Market insights and trends
 - `GET /fantasy/differentials` - Differential pick suggestions
-- `GET /fantasy/cache-status` - Database cache status
+
 - `GET /fantasy/health` - Agent health check
 
 ## Development
@@ -118,29 +100,7 @@ make clean                   # Clean up generated files
 FD_API_KEY=your_football_data_api_key_here
 REDIS_URL=redis://localhost:6379
 
-# Database Configuration
-DATABASE_URL=postgresql://username:password@localhost:5432/fantasy_football
-```
 
-### Database Management
-
-The application includes a database management script for setup and maintenance:
-
-```bash
-# Check cache status
-cd backend && python db_manager.py status
-
-# Refresh FPL data
-cd backend && python db_manager.py refresh
-
-# Load football data
-cd backend && python db_manager.py load-football
-
-# Clean up expired cache
-cd backend && python db_manager.py cleanup
-```
-
-For detailed database setup instructions, see [DATABASE_SETUP.md](DATABASE_SETUP.md).
 
 ## Frontend
 

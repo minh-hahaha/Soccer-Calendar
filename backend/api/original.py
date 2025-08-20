@@ -4,11 +4,8 @@ from typing import Optional
 
 import requests
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-
-from ..database import get_db, db_manager
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,17 +27,7 @@ def get_fixtures(
     matchday: Optional[int] = Query(None),
     status: Optional[str] = Query(None),
     season: Optional[str] = Query(2025),
-    db: Session = Depends(get_db),
 ):
-    # Check for cached data first
-    cached_fixtures = db_manager.get_football_fixtures(
-        db, season=str(season), matchday=matchday, status=status, team_filter=team
-    )
-    
-    if cached_fixtures and cached_fixtures.is_fresh(max_age_hours=2):
-        print("Using cached fixtures data from database")
-        return cached_fixtures.data
-    
     # Get data from API
     print("Fetching fresh fixtures data from football-data.org API...")
     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
@@ -107,13 +94,6 @@ def get_fixtures(
 
     result = {"fixtures": filtered_data}
     
-    # Cache the result
-    db_manager.save_football_fixtures(
-        db, season=str(season), data=result, 
-        matchday=matchday, status=status, team_filter=team
-    )
-    print(f"Saved fixtures data to database for season {season}")
-    
     return result
 
 
@@ -122,17 +102,7 @@ def get_finished_matches(
     team: Optional[str] = Query(None),  # use shortName
     matchday: Optional[int] = Query(None),
     season: Optional[str] = Query(2025),
-    db: Session = Depends(get_db),
 ):
-    # Check for cached data first
-    cached_fixtures = db_manager.get_football_fixtures(
-        db, season=str(season), status="FINISHED", team_filter=team
-    )
-    
-    if cached_fixtures and cached_fixtures.is_fresh(max_age_hours=2):
-        print("Using cached finished matches data from database")
-        return cached_fixtures.data
-    
     # Get data from API
     print("Fetching fresh finished matches data from football-data.org API...")
     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
@@ -179,25 +149,11 @@ def get_finished_matches(
 
     result = {"finished_matches": filtered_data}
     
-    # Cache the result
-    db_manager.save_football_fixtures(
-        db, season=str(season), data=result, 
-        status="FINISHED", team_filter=team
-    )
-    print(f"Saved finished matches data to database for season {season}")
-    
     return result
 
 
 @router.get("/teams")
-def get_teams(season: str = Query(2025), db: Session = Depends(get_db)):
-    # Check for cached data first
-    cached_teams = db_manager.get_football_teams(db, season=str(season))
-    
-    if cached_teams and cached_teams.is_fresh(max_age_hours=24):
-        print("Using cached teams data from database")
-        return cached_teams.data
-    
+def get_teams(season: str = Query(2025)):
     # Get data from API
     print("Fetching fresh teams data from football-data.org API...")
     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
@@ -225,10 +181,6 @@ def get_teams(season: str = Query(2025), db: Session = Depends(get_db)):
         ]
     }
     
-    # Cache the result
-    db_manager.save_football_teams(db, season=str(season), data=result)
-    print(f"Saved teams data to database for season {season}")
-    
     return result
 
 
@@ -236,15 +188,7 @@ def get_teams(season: str = Query(2025), db: Session = Depends(get_db)):
 def get_standings(
     season: int = Query(2025),
     matchday: Optional[int] = Query(None),
-    db: Session = Depends(get_db),
 ):
-    # Check for cached data first
-    cached_standings = db_manager.get_football_standings(db, season=str(season), matchday=matchday)
-    
-    if cached_standings and cached_standings.is_fresh(max_age_hours=4):
-        print("Using cached standings data from database")
-        return cached_standings.data
-    
     # Get data from API
     print("Fetching fresh standings data from football-data.org API...")
     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
@@ -284,22 +228,11 @@ def get_standings(
         ],
     }
     
-    # Cache the result
-    db_manager.save_football_standings(db, season=str(season), data=result, matchday=matchday)
-    print(f"Saved standings data to database for season {season}")
-    
     return result
 
 
 @router.get("/head2head")
-def get_head2head(matchId: int, db: Session = Depends(get_db)):
-    # Check for cached data first
-    cached_head2head = db_manager.get_football_head2head(db, matchId)
-    
-    if cached_head2head and not cached_head2head.is_expired():
-        print("Using cached head2head data from database")
-        return cached_head2head.data
-    
+def get_head2head(matchId: int):
     # Get data from API
     print("Fetching fresh head2head data from football-data.org API...")
     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
@@ -313,10 +246,6 @@ def get_head2head(matchId: int, db: Session = Depends(get_db)):
 
     data = response.json()
     
-    # Cache the result
-    db_manager.save_football_head2head(db, matchId, data, cache_duration_hours=24)
-    print(f"Saved head2head data to database for match {matchId}")
-    
     return data
 
 
@@ -325,43 +254,4 @@ def health_check():
     """Health check for general football API"""
     return {"status": "ok", "api_version": "1.0.0"}
 
-@router.get("/cache-status")
-def get_cache_status(db: Session = Depends(get_db)):
-    """Get cache status and statistics for football data"""
-    from ..database import FootballFixtures, FootballTeams, FootballStandings, FootballHead2Head
-    
-    # Get cache statistics
-    fixtures_count = db.query(FootballFixtures).filter(FootballFixtures.is_current == True).count()
-    teams_count = db.query(FootballTeams).filter(FootballTeams.is_current == True).count()
-    standings_count = db.query(FootballStandings).filter(FootballStandings.is_current == True).count()
-    head2head_count = db.query(FootballHead2Head).count()
-    expired_head2head_count = db.query(FootballHead2Head).filter(FootballHead2Head.expires_at < datetime.utcnow()).count()
-    
-    return {
-        "football_cache": {
-            "fixtures": {
-                "cached_seasons": fixtures_count,
-                "fresh_data_available": fixtures_count > 0
-            },
-            "teams": {
-                "cached_seasons": teams_count,
-                "fresh_data_available": teams_count > 0
-            },
-            "standings": {
-                "cached_seasons": standings_count,
-                "fresh_data_available": standings_count > 0
-            },
-            "head2head": {
-                "total_entries": head2head_count,
-                "expired_entries": expired_head2head_count,
-                "active_entries": head2head_count - expired_head2head_count
-            }
-        },
-        "cache_freshness": {
-            "fixtures": "2 hours",
-            "teams": "24 hours", 
-            "standings": "4 hours",
-            "head2head": "24 hours"
-        },
-        "timestamp": datetime.utcnow().isoformat()
-    }
+

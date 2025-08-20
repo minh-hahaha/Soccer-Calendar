@@ -5,12 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api import original as original_api
 # Import the new AI agents
 from backend.api.fantasy_agent import router as fantasy_agent_router
-from backend.database import db_manager
 
 load_dotenv()
-
-# Initialize database tables
-db_manager.create_tables()
 
 app = FastAPI(
     title="Premier League AI Analytics w/ Fantasy Football",
