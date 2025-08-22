@@ -1,5 +1,4 @@
 import  { useEffect, useState } from "react";
-import PredictionDisplay from "../components/PredictionDisplay";
 
 type Match = { // must match with API response
   id: number;
@@ -34,13 +33,6 @@ function formatDate(utc: string): string {
   return new Date(utc).toLocaleDateString(undefined, options);
 }
 
-function formatTime(utc: string): string {
-  return new Date(utc).toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
 
 const Fixtures = () => {
   const [fixtures, setFixtures] = useState<FixturesByDate>({});

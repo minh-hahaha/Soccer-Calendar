@@ -79,7 +79,7 @@ class Player(Base):
     position = Column(String)
     price = Column(Float)
 
-
+### FETCH DATA ###
 def fetch_football_matches(api_key: str, season: str = "2024") -> List[Dict[str, Any]]:
     """Fetch raw match data from football-data.org."""
     headers = {"X-Auth-Token": api_key}
@@ -88,13 +88,6 @@ def fetch_football_matches(api_key: str, season: str = "2024") -> List[Dict[str,
     response.raise_for_status()
     return response.json().get("matches", [])
 
-def fetch_finished_matches(api_key: str, season: str = "2024") -> List[Dict[str, Any]]:
-    """Fetch finished matches from football-data.org."""
-    headers = {"X-Auth-Token": api_key}
-    url = f"https://api.football-data.org/v4/competitions/PL/matches?season={season}&status=FINISHED"
-    response = requests.get(url, headers=headers, timeout=30)
-    response.raise_for_status()
-    return response.json().get("matches", [])
 
 def fetch_standings(api_key: str, season: str = "2024", matchday: Optional[int] = None) -> Dict[str, Any]:
     """Fetch standings from football-data.org."""
@@ -114,13 +107,13 @@ def fetch_teams(api_key: str, season: str = "2024") -> Dict[str, Any]:
     response.raise_for_status()
     return response.json()
 
-def fetch_head2head(api_key: str, match_id: int) -> Dict[str, Any]:
-    """Fetch head-to-head data for a specific match."""
-    headers = {"X-Auth-Token": api_key}
-    url = f"https://api.football-data.org/v4/matches/{match_id}/head2head"
-    response = requests.get(url, headers=headers, timeout=30)
-    response.raise_for_status()
-    return response.json()
+# def fetch_head2head(api_key: str, match_id: int) -> Dict[str, Any]:
+#     """Fetch head-to-head data for a specific match."""
+#     headers = {"X-Auth-Token": api_key}
+#     url = f"https://api.football-data.org/v4/matches/{match_id}/head2head"
+#     response = requests.get(url, headers=headers, timeout=30)
+#     response.raise_for_status()
+#     return response.json()
 
 def fetch_fantasy_bootstrap() -> Dict[str, Any]:
     """Fetch raw fantasy bootstrap data."""
@@ -137,6 +130,8 @@ def normalize_team_name(name: str) -> str:
     name = re.sub(r"\s+FC$", "", name.strip(), flags=re.IGNORECASE)
     return name.title()
 
+
+### CLEAN DATA ####
 def clean_match_data(raw_matches: List[Dict[str, Any]], season: Integer = 2025) -> List[Dict[str, Any]]:
     """Clean raw match data - combines fixtures and finished matches."""
     cleaned = []
