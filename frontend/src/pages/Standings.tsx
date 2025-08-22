@@ -38,7 +38,8 @@ export default function Standings() {
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Premier League Standings</h1>
 
-      <div className="flex flex-wrap text-white gap-4 mb-8 bg-purple-900 p-4 rounded">
+      {/* no more filter since complicated db */}
+      {/* <div className="flex flex-wrap text-white gap-4 mb-8 bg-purple-900 p-4 rounded">
         <div>
           <label className="mr-2 font-medium">Matchday:</label>
             <select
@@ -66,7 +67,7 @@ export default function Standings() {
                 <option value={2023}>2023</option>
               </select>
             </div>
-      </div>
+      </div> */}
 
       <table className="w-full border-collapse text-sm">
         <thead className="bg-gray-100">

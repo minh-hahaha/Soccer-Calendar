@@ -72,6 +72,8 @@ const Fixtures = () => {
       }
       
       const data = await response.json();
+
+      // console.log(data.fixtures)
       
       // Check if data.fixtures exists and is an array
       if (!data.fixtures || !Array.isArray(data.fixtures)) {
@@ -244,7 +246,7 @@ const Fixtures = () => {
                     </div>
                   </div>
                   {/* Prediction Display */}
-                  {match.status === "SCHEDULED" || match.status === "TIMED" ? (
+                  {/* {match.status === "SCHEDULED" || match.status === "TIMED" ? (
                     <div className="mt-4">
                       <PredictionDisplay matchId={match.id} compact={true} />
                     </div>
@@ -256,7 +258,7 @@ const Fixtures = () => {
                          `Match status: ${match.status}`}
                       </p>
                     </div>
-                  )}
+                  )} */}
                 </div>
               ))}
             </div>

@@ -117,7 +117,6 @@ class FantasyFootballAgent:
                 return gw["id"]
         return None
 
-    
     def analyze_fantasy_strategy(self, analysis_types: List[FantasyAdviceType], 
                                 budget: float = 100.0,
                                 current_team: Optional[List[int]] = None,

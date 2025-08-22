@@ -7,6 +7,7 @@ from backend.api import original as original_api
 from backend.api.fantasy_agent import router as fantasy_agent_router
 
 load_dotenv()
+import os
 
 app = FastAPI(
     title="Premier League AI Analytics w/ Fantasy Football",
@@ -28,6 +29,12 @@ app.include_router(
     fantasy_agent_router, prefix="/fantasy", tags=["Fantasy Football Agent"]
 )
 
+from backend.pipeline.etl import ingest_all_football_data, ingest_players
+
+# ingest_all_football_data(os.getenv("FD_API_KEY"), os.getenv("DATABASE_URL"), "2025")
+# ingest_all_football_data(os.getenv("FD_API_KEY"), os.getenv("DATABASE_URL"), "2024")
+
+#ingest_players(os.getenv("DATABASE_URL"))
 
 @app.get("/")
 def read_root():
@@ -59,3 +66,5 @@ def health_check():
             "fantasy_agent": "operational"
         },
     }
+
+
