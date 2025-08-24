@@ -6,3 +6,7 @@ python-multipart>=0.0.5
 SQLAlchemy>=1.4
 psycopg2-binary>=2.9
 pytest
+pandas>=1.5
+scikit-learn
+joblib
+boto3

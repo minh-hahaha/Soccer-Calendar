@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api import original as original_api
+from backend.api import agent_api as agent_api
 # Import the new AI agents
-from backend.api.fantasy_agent import router as fantasy_agent_router
 
 load_dotenv()
 import os
@@ -26,15 +26,19 @@ app.add_middleware(
 app.include_router(original_api.router, prefix="/v1", tags=["Football Data"])
 # app.include_router(match_agent_router, prefix="/agent", tags=["Match Analysis Agent"])
 app.include_router(
-    fantasy_agent_router, prefix="/fantasy", tags=["Fantasy Football Agent"]
+    agent_api.router, prefix="/fantasy", tags=["Fantasy Football Agent"]
 )
 
 from backend.pipeline.etl import ingest_all_football_data, ingest_players
+from backend.pipeline.fpl_history import ingest_fpl_history
+
 
 # ingest_all_football_data(os.getenv("FD_API_KEY"), os.getenv("DATABASE_URL"), "2025")
 # ingest_all_football_data(os.getenv("FD_API_KEY"), os.getenv("DATABASE_URL"), "2024")
 
 #ingest_players(os.getenv("DATABASE_URL"))
+
+# ingest_fpl_history(os.getenv("DATABASE_URL"))
 
 @app.get("/")
 def read_root():
