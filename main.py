@@ -25,9 +25,7 @@ app.add_middleware(
 
 app.include_router(original_api.router, prefix="/v1", tags=["Football Data"])
 # app.include_router(match_agent_router, prefix="/agent", tags=["Match Analysis Agent"])
-app.include_router(
-    agent_api.router, prefix="/fantasy", tags=["Fantasy Football Agent"]
-)
+app.include_router(agent_api.router, prefix="/fantasy", tags=["Fantasy Football Agent"])
 
 from backend.pipeline.etl import ingest_all_football_data, ingest_players
 from backend.pipeline.fpl_history import ingest_fpl_history
