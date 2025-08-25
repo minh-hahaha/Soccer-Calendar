@@ -53,7 +53,7 @@ def get_fixtures(
         result = conn.execute(text(query), params)
         fixtures = [dict(row) for row in result.mappings()]
 
-    #print(fixtures)
+    # print(fixtures)
 
     filtered_data = []
 
@@ -62,7 +62,7 @@ def get_fixtures(
         if (
             fixture["status"] == "FINISHED" and fixture["home_score"] is not None and fixture["away_score"] is not None
         ):
-            display_time = f"{fixture["home_score"]} - {fixture["away_score"]}"
+            display_time = f'{fixture["home_score"]} - {fixture["away_score"]}'
         else:
                 # Format the UTC date to show time
             try:
@@ -92,60 +92,6 @@ def get_fixtures(
 
     return {"fixtures": filtered_data}
 
-
-# @router.get("/finished-matches")
-# def get_finished_matches(
-#     team: Optional[str] = Query(None),  # use shortName
-#     matchday: Optional[int] = Query(None),
-#     season: Optional[str] = Query(2025),
-# ):
-#     # Get data from API
-#     print("Fetching fresh finished matches data from football-data.org API...")
-#     headers = {"X-Auth-Token": API_FOOTBALL_KEY}
-
-#     url = f"{BASE_URL}/competitions/PL/matches?season={season}&status=FINISHED"
-
-#     response = requests.get(url, headers=headers)
-
-#     if response.status_code != 200:
-#         return HTTPException(status_code=response.status_code, detail=response.text)
-
-#     data = response.json()["matches"]
-
-#     # filter data based on query parameters
-#     filtered_data = []
-#     for match in data:
-#         # matchday, team are inputs
-#         if matchday and match["matchday"] != matchday:
-#             continue  # go to the next match
-#         if team and (
-#             team.lower() not in match["homeTeam"]["shortName"].lower()
-#             and team.lower() not in match["awayTeam"]["shortName"].lower()
-#         ):
-#             continue  # go to the next match
-
-#         # Get score information for finished matches
-#         home_score = match.get("score", {}).get("fullTime", {}).get("home")
-#         away_score = match.get("score", {}).get("fullTime", {}).get("away")
-
-#         filtered_data.append(
-#             {
-#                 "id": match["id"],
-#                 "utcDate": match["utcDate"],
-#                 "homeTeam": match["homeTeam"]["shortName"],
-#                 "awayTeam": match["awayTeam"]["shortName"],
-#                 "matchday": match["matchday"],
-#                 "status": match["status"],
-#                 "homeTeamCrest": match["homeTeam"]["crest"],
-#                 "awayTeamCrest": match["awayTeam"]["crest"],
-#                 "homeScore": home_score,
-#                 "awayScore": away_score,
-#             }
-#         )
-
-#     result = {"finished_matches": filtered_data}
-    
-#     return result
 
 
 @router.get("/teams")

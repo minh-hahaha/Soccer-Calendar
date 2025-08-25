@@ -536,6 +536,11 @@ class FantasyFootballAgent:
                     return team["short_name"]
         return f"Team {team_id}"
     
+    def _get_position_name(self, element_type: int) -> str:
+        """Get position name from element type"""
+        position_map = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward"}
+        return position_map.get(element_type, "Unknown")
+    
     def _get_next_fixture(self, team_id: int) -> Optional[Dict]:
         """Get next fixture for a team"""
         if not self.fixtures_data:
@@ -546,6 +551,20 @@ class FantasyFootballAgent:
                    and not f["finished"] and f["event"] is not None]
         
         return sorted(upcoming, key=lambda x: x["event"])[0] if upcoming else None
+    
+    def _get_team_fixtures(self, team_id: int, gameweeks_ahead: int) -> List[Dict]:
+        """Get upcoming fixtures for a team"""
+        if not self.fixtures_data:
+            return []
+        
+        current_gw = self.current_gameweek or 1
+        upcoming = [f for f in self.fixtures_data 
+                   if (f["team_h"] == team_id or f["team_a"] == team_id) 
+                   and not f["finished"] 
+                   and f["event"] is not None
+                   and current_gw <= f["event"] <= current_gw + gameweeks_ahead]
+        
+        return sorted(upcoming, key=lambda x: x["event"])
     
 
     def get_ai_differential_picks(self, risk_tolerance: str = "medium") -> List[Dict]:

@@ -283,6 +283,7 @@ def get_session(database_url: str):
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)()
 
+### STORE DATA ####
 def store_matches(session, matches: List[Dict[str, Any]]):
     """Store cleaned match data using SQLAlchemy."""
     # Clear existing matches for the season to avoid duplicates
