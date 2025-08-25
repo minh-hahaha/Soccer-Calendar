@@ -28,6 +28,7 @@ def get_team():
         "token": "https://account.premierleague.com/as/token",
         "me": "https://fantasy.premierleague.com/api/me/",
         "myteam": "https://fantasy.premierleague.com/api/my-team/10479366/",
+        # "another": "https://fantasy.premierleague.com/api/entry/7402345/",
     }
     STANDARD_CONNECTION_ID = "0d8c928e4970386733ce110b9dda8412"
 
@@ -160,9 +161,10 @@ def get_team():
     )
 
     access_token = response.json()["access_token"]
+
     response = session.get(URLS["me"], headers={"X-API-Authorization": f"Bearer {access_token}"})
 
-    team = session.get(URLS["myteam"], headers={"X-API-Authorization": f"Bearer {access_token}"})
+    team = session.get(URLS["another"], headers={"X-API-Authorization": f"Bearer {access_token}"})
 
     return (team.json())
 

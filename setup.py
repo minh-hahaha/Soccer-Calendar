@@ -323,7 +323,7 @@ class FantasyAISetup:
         logger.info("Training initial AI models...")
         
         try:
-            from backend.fantasy.fantasy_agent import FantasyFootballAgent
+            from backend.api.v2.fantasy_agent import FantasyFootballAgent
             
             agent = FantasyFootballAgent(self.db_connection)
             

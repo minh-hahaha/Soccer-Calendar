@@ -42,17 +42,12 @@ const Logobar = () => {
                   <span>{link.label}</span>
                   {link.path === "/fantasy" && (
                     <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></span>
-                      <span className="text-xs text-green-300">AI</span>
+                      {/* <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></span> */}
+                      {/* <span className="text-xs text-green-300">AI</span> */}
                     </div>
                   )}
                 </div>
                 
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                  {link.description}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                </div>
               </Link>
             ))}
           </div>
@@ -60,8 +55,8 @@ const Logobar = () => {
           {/* Additional Info */}
           <div className="hidden md:flex items-center space-x-4 text-sm text-purple-200">
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-              <span>Live Data</span>
+              {/* <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div> */}
+              {/* <span>Live Data</span> */}
             </div>
           </div>
         </div>

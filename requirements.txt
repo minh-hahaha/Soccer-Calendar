@@ -2,6 +2,7 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
+pydantic-settings==2.1.0
 
 # Database
 sqlalchemy==2.0.23
@@ -25,5 +26,14 @@ httpx==0.25.2
 python-multipart==0.0.6
 python-dateutil==2.8.2
 
-#login
+#To get team
 curl_cffi
+
+# Monitoring and system info
+psutil==5.9.6
+
+# CLI tools
+click==8.1.7
+
+# HTTP client for health checks
+aiohttp==3.9.1
