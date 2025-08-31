@@ -114,11 +114,20 @@ class FantasyFootballAgent:
             # Fetch current season data
             self._fetch_current_data()
             
-            # Train ML models if not already trained
+            # Load models if not loaded -> train. 
             if not self.models:
-                self.train_prediction_models()
+                self.logger.info("🔍 No models in memory, attempting to load from S3/local storage...")
+                models_loaded = self.load_models()
                 
-            return True
+                if not models_loaded:
+                    self.logger.info("⚠️ No existing models found, training new models...")
+                    self.train_prediction_models()
+                else:
+                    self.logger.info("✅ Models loaded successfully from storage")
+            else:
+                self.logger.info("✅ Models already loaded in memory")
+                return True
+
         except Exception as e:
             self.logger.error(f"Error initializing AI agent: {e}")
             return False

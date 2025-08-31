@@ -60,9 +60,13 @@ class MLService:
             if not success:
                 raise ModelError("Failed to initialize fantasy agent data")
             
-            # Train models using your existing logic
-            self.fantasy_agent.train_prediction_models()
-            
+            # Only train models if they don't exist or if force_retrain is True
+            if not self.fantasy_agent.models or force_retrain:
+                logger.info("Training new models...")
+                self.fantasy_agent.train_prediction_models()
+            else:
+                logger.info("Models already exist, skipping training")
+                
             logger.info("Model training completed successfully")
             return True
             

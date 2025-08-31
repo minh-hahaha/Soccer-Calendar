@@ -406,25 +406,25 @@ const FantasyFootballAgent: React.FC = () => {
     }
   };
 
-  // Fetch fixture analysis
-  const fetchFixtureAnalysis = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        gameweeks_ahead: gameweeksAhead.toString()
-      });
+  // Fetch fixture analysis (No endpoint for now)
+  // const fetchFixtureAnalysis = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const params = new URLSearchParams({
+  //       gameweeks_ahead: gameweeksAhead.toString()
+  //     });
       
-      const response = await fetch(`${API_BASE}/fixture-analysis?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch fixture analysis');
+  //     const response = await fetch(`${API_BASE}/fixture-analysis?${params}`);
+  //     if (!response.ok) throw new Error('Failed to fetch fixture analysis');
       
-      const data = await response.json();
-      setFixtureAnalysis(data.fixture_analysis);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch fixture analysis');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const data = await response.json();
+  //     setFixtureAnalysis(data.fixture_analysis);
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'Failed to fetch fixture analysis');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Initialize data
   useEffect(() => {
@@ -1346,7 +1346,7 @@ const FantasyFootballAgent: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'fixtures' && (
+      {/* {activeTab === 'fixtures' && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg p-4 border border-gray-200">
             <div className="flex items-center justify-between">
@@ -1456,7 +1456,7 @@ const FantasyFootballAgent: React.FC = () => {
             )}
           </div>
         </div>
-      )}
+      )} */}
 
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
