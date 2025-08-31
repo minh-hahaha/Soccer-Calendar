@@ -406,7 +406,7 @@ const FantasyFootballAgent: React.FC = () => {
     }
   };
 
-  // Fetch fixture analysis (No endpoint for now)
+  // Fetch fixture analysis (No)
   // const fetchFixtureAnalysis = async () => {
   //   setLoading(true);
   //   try {
@@ -477,7 +477,7 @@ const FantasyFootballAgent: React.FC = () => {
     { id: 'transfers', name: 'Transfer Targets', icon: RefreshCw },
     { id: 'captain', name: 'Captain Analysis', icon: Crown },
     { id: 'market', name: 'Market Watch', icon: TrendingUp },
-    { id: 'fixtures', name: 'Fixtures', icon: Calendar }
+    // { id: 'fixtures', name: 'Fixtures', icon: Calendar }
   ];
 
   if (error) {
@@ -1346,117 +1346,7 @@ const FantasyFootballAgent: React.FC = () => {
         </div>
       )}
 
-      {/* {activeTab === 'fixtures' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Calendar className="w-5 h-5 text-blue-600 mr-2" />
-                <h3 className="font-semibold">Fixture Analysis</h3>
-              </div>
-              <div className="flex items-center space-x-4">
-                <label className="flex items-center">
-                  <span className="text-sm text-gray-600 mr-2">Gameweeks ahead:</span>
-                  <input
-                    type="number"
-                    value={gameweeksAhead}
-                    onChange={(e) => setGameweeksAhead(Number(e.target.value))}
-                    min="1"
-                    max="10"
-                    className="border border-gray-300 rounded-md px-3 py-2 w-20"
-                  />
-                </label>
-                
-                <button
-                  onClick={fetchFixtureAnalysis}
-                  disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  {loading ? 'Analyzing...' : 'Analyze Fixtures'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Fixture Analysis Results */}
-          <div className="space-y-4">
-            {fixtureAnalysis.map((team, index) => (
-              <div key={index} className="bg-white rounded-lg p-5 border border-gray-200">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center mb-2">
-                      <h4 className="font-semibold text-lg text-gray-900 mr-3">
-                        {team.team}
-                      </h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRecommendationColor(team.ai_recommendation)}`}>
-                        {team.ai_recommendation.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mb-3">{team.reasoning}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-gray-900">
-                      Difficulty: {team.average_difficulty.toFixed(1)}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {team.fixtures_analyzed} fixtures
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <div className="text-blue-600 font-medium text-sm">Home</div>
-                    <div className="text-lg font-bold text-blue-800">
-                      {team.home_fixtures}
-                    </div>
-                  </div>
-                  <div className="text-center p-3 bg-orange-50 rounded-lg">
-                    <div className="text-orange-600 font-medium text-sm">Away</div>
-                    <div className="text-lg font-bold text-orange-800">
-                      {team.away_fixtures}
-                    </div>
-                  </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-gray-600 font-medium text-sm">Avg Difficulty</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {team.average_difficulty.toFixed(1)}/5
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Fixture Details */}
-                <div className="space-y-2">
-                  <h5 className="font-medium text-sm text-gray-700">Upcoming Fixtures:</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {team.fixture_details.map((fixture, fIndex) => (
-                      <div key={fIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
-                        <span className="font-medium">GW{fixture.gameweek}</span>
-                        <span className={fixture.home_away === 'H' ? 'text-blue-600' : 'text-orange-600'}>
-                          {fixture.home_away === 'H' ? 'vs' : '@'} {fixture.opponent}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          fixture.difficulty <= 2 ? 'bg-green-100 text-green-800' :
-                          fixture.difficulty >= 4 ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {fixture.difficulty}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {fixtureAnalysis.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No fixture analysis available. Click "Analyze Fixtures" to get team fixture difficulty.
-              </div>
-            )}
-          </div>
-        </div>
-      )} */}
+      
 
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1472,3 +1362,116 @@ const FantasyFootballAgent: React.FC = () => {
 
 export default FantasyFootballAgent;
                 
+
+
+// {activeTab === 'fixtures' && (
+//   <div className="space-y-6">
+//     <div className="bg-white rounded-lg p-4 border border-gray-200">
+//       <div className="flex items-center justify-between">
+//         <div className="flex items-center">
+//           <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+//           <h3 className="font-semibold">Fixture Analysis</h3>
+//         </div>
+//         <div className="flex items-center space-x-4">
+//           <label className="flex items-center">
+//             <span className="text-sm text-gray-600 mr-2">Gameweeks ahead:</span>
+//             <input
+//               type="number"
+//               value={gameweeksAhead}
+//               onChange={(e) => setGameweeksAhead(Number(e.target.value))}
+//               min="1"
+//               max="10"
+//               className="border border-gray-300 rounded-md px-3 py-2 w-20"
+//             />
+//           </label>
+          
+//           <button
+//             onClick={fetchFixtureAnalysis}
+//             disabled={loading}
+//             className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md transition-colors"
+//           >
+//             {loading ? 'Analyzing...' : 'Analyze Fixtures'}
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+
+//     {/* Fixture Analysis Results */}
+//     <div className="space-y-4">
+//       {fixtureAnalysis.map((team, index) => (
+//         <div key={index} className="bg-white rounded-lg p-5 border border-gray-200">
+//           <div className="flex items-start justify-between mb-4">
+//             <div className="flex-1">
+//               <div className="flex items-center mb-2">
+//                 <h4 className="font-semibold text-lg text-gray-900 mr-3">
+//                   {team.team}
+//                 </h4>
+//                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRecommendationColor(team.ai_recommendation)}`}>
+//                   {team.ai_recommendation.replace('_', ' ')}
+//                 </span>
+//               </div>
+//               <p className="text-gray-600 mb-3">{team.reasoning}</p>
+//             </div>
+//             <div className="text-right">
+//               <div className="text-lg font-bold text-gray-900">
+//                 Difficulty: {team.average_difficulty.toFixed(1)}
+//               </div>
+//               <div className="text-sm text-gray-500">
+//                 {team.fixtures_analyzed} fixtures
+//               </div>
+//             </div>
+//           </div>
+          
+//           <div className="grid grid-cols-3 gap-4 mb-4">
+//             <div className="text-center p-3 bg-blue-50 rounded-lg">
+//               <div className="text-blue-600 font-medium text-sm">Home</div>
+//               <div className="text-lg font-bold text-blue-800">
+//                 {team.home_fixtures}
+//               </div>
+//             </div>
+//             <div className="text-center p-3 bg-orange-50 rounded-lg">
+//               <div className="text-orange-600 font-medium text-sm">Away</div>
+//               <div className="text-lg font-bold text-orange-800">
+//                 {team.away_fixtures}
+//               </div>
+//             </div>
+//             <div className="text-center p-3 bg-gray-50 rounded-lg">
+//               <div className="text-gray-600 font-medium text-sm">Avg Difficulty</div>
+//               <div className="text-lg font-bold text-gray-800">
+//                 {team.average_difficulty.toFixed(1)}/5
+//               </div>
+//             </div>
+//           </div>
+          
+//           {/* Fixture Details */}
+//           <div className="space-y-2">
+//             <h5 className="font-medium text-sm text-gray-700">Upcoming Fixtures:</h5>
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+//               {team.fixture_details.map((fixture, fIndex) => (
+//                 <div key={fIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+//                   <span className="font-medium">GW{fixture.gameweek}</span>
+//                   <span className={fixture.home_away === 'H' ? 'text-blue-600' : 'text-orange-600'}>
+//                     {fixture.home_away === 'H' ? 'vs' : '@'} {fixture.opponent}
+//                   </span>
+//                   <span className={`px-2 py-1 rounded text-xs ${
+//                     fixture.difficulty <= 2 ? 'bg-green-100 text-green-800' :
+//                     fixture.difficulty >= 4 ? 'bg-red-100 text-red-800' :
+//                     'bg-yellow-100 text-yellow-800'
+//                   }`}>
+//                     {fixture.difficulty}
+//                   </span>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+      
+//       {fixtureAnalysis.length === 0 && (
+//         <div className="text-center py-8 text-gray-500">
+//           No fixture analysis available. Click "Analyze Fixtures" to get team fixture difficulty.
+//         </div>
+//       )}
+//     </div>
+//   </div>
+// )}
