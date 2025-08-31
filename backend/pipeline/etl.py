@@ -420,6 +420,3 @@ def ingest_players(database_url: str):
         raise
     finally:
         session.close()
-
-# Usage example:
-# ingest_all_football_data("your_api_key", "postgresql://user:pass@localhost/db", "2025")
