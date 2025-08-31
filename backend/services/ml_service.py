@@ -192,11 +192,12 @@ class MLService:
     # ==========================================
     
     def health_check(self) -> Dict[str, Any]:
-        """Comprehensive health check for ML service"""
+        """Comprehensive health check for ML service including S3 status"""
         try:
             model_files = list(self.model_path.glob("*.pkl"))
             
-            return {
+            # Basic health status
+            health_status = {
                 'healthy': len(self.fantasy_agent.models) > 0,
                 'models_trained': list(self.fantasy_agent.models.keys()),
                 'model_files_on_disk': [f.name for f in model_files],
@@ -204,10 +205,130 @@ class MLService:
                 'historical_data_loaded': self.fantasy_agent.historical_data is not None,
                 'current_gameweek': self.fantasy_agent.current_gameweek,
             }
+            
+            # S3 Health Check
+            s3_status = self._check_s3_health()
+            health_status['s3_storage'] = s3_status
+            
+            # Update overall health based on S3 status
+            if not s3_status.get('available', False) and len(self.fantasy_agent.models) == 0:
+                health_status['healthy'] = False
+                health_status['warning'] = 'No models loaded and S3 not accessible'
+            elif not s3_status.get('available', False):
+                health_status['warning'] = 'S3 storage not accessible - models may not persist'
+            
+            return health_status
+            
         except Exception as e:
             return {
                 'healthy': False,
-                'error': str(e)
+                'error': str(e),
+                's3_storage': {'available': False, 'error': 'Health check failed'}
             }
 
+    def _check_s3_health(self) -> Dict[str, Any]:
+        """Check S3 storage health and accessibility"""
+        try:
+            # Check if fantasy agent has S3 client
+            if not hasattr(self.fantasy_agent, 's3_client') or self.fantasy_agent.s3_client is None:
+                return {
+                    'available': False,
+                    'status': 'client_not_configured',
+                    'message': 'S3 client not available - check AWS credentials'
+                }
+            
+            bucket_name = getattr(self.fantasy_agent, 's3_bucket', 'unknown')
+            s3_key = getattr(self.fantasy_agent, 's3_key', 'models/fantasy_ai_models.pkl')
+            
+            # Test bucket access
+            try:
+                self.fantasy_agent.s3_client.head_bucket(Bucket=bucket_name)
+                bucket_accessible = True
+                bucket_error = None
+            except Exception as e:
+                bucket_accessible = False
+                bucket_error = str(e)
+            
+            # Check if models exist in S3
+            models_in_s3 = False
+            model_last_modified = None
+            model_size = None
+            
+            if bucket_accessible:
+                try:
+                    response = self.fantasy_agent.s3_client.head_object(Bucket=bucket_name, Key=s3_key)
+                    models_in_s3 = True
+                    model_last_modified = response['LastModified'].isoformat()
+                    model_size = response['ContentLength']
+                except Exception as e:
+                    # Models don't exist in S3 yet, which is okay
+                    models_in_s3 = False
+            
+            # Test write permissions (non-destructive test)
+            write_permission = False
+            write_error = None
+            
+            if bucket_accessible:
+                try:
+                    test_key = 'health-check/test.txt'
+                    self.fantasy_agent.s3_client.put_object(
+                        Bucket=bucket_name, 
+                        Key=test_key, 
+                        Body=b'health check test'
+                    )
+                    # Clean up test file
+                    self.fantasy_agent.s3_client.delete_object(Bucket=bucket_name, Key=test_key)
+                    write_permission = True
+                except Exception as e:
+                    write_error = str(e)
+            
+            # List model versions/backups
+            model_versions = []
+            if bucket_accessible:
+                try:
+                    response = self.fantasy_agent.s3_client.list_objects_v2(
+                        Bucket=bucket_name,
+                        Prefix='models/',
+                        MaxKeys=10
+                    )
+                    model_versions = [
+                        {
+                            'key': obj['Key'],
+                            'size': obj['Size'],
+                            'last_modified': obj['LastModified'].isoformat()
+                        }
+                        for obj in response.get('Contents', [])
+                    ]
+                except Exception:
+                    pass  # Not critical for health check
+            
+            return {
+                'available': bucket_accessible and write_permission,
+                'status': 'healthy' if (bucket_accessible and write_permission) else 'degraded',
+                'bucket': {
+                    'name': bucket_name,
+                    'accessible': bucket_accessible,
+                    'error': bucket_error
+                },
+                'models': {
+                    'exist_in_s3': models_in_s3,
+                    'last_modified': model_last_modified,
+                    'size_bytes': model_size,
+                    'versions_count': len(model_versions)
+                },
+                'permissions': {
+                    'read': bucket_accessible,
+                    'write': write_permission,
+                    'write_error': write_error
+                },
+                'model_versions': model_versions[:5]  # Show last 5 versions
+            }
+            
+        except Exception as e:
+            return {
+                'available': False,
+                'status': 'error',
+                'error': str(e),
+                'message': 'S3 health check failed'
+            }
 

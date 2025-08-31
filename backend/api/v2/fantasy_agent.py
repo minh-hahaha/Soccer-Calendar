@@ -10,6 +10,10 @@ import logging
 from sqlalchemy import create_engine, text
 import warnings
 warnings.filterwarnings('ignore')
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
+import os
+
 
 # ML imports
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
@@ -86,6 +90,18 @@ class FantasyFootballAgent:
         self.log_dir = Path("./data/logs") 
         self.model_dir.mkdir(parents=True, exist_ok=True)
         self.log_dir.mkdir(parents=True, exist_ok=True)
+
+
+        # S3 configuration
+        self.s3_bucket = os.getenv('S3_MODELS_BUCKET', 'football-ai-models-123456789')  # Replace with your bucket name
+        self.s3_key = "models/fantasy_ai_models.pkl"
+        
+        # Initialize S3 client
+        try:
+            self.s3_client = boto3.client('s3')
+        except NoCredentialsError:
+            self.logger.warning("No AWS credentials found - S3 features disabled")
+            self.s3_client = None
     
     def initialize_data(self):
         """Initialize both historical and current FPL data"""
@@ -296,7 +312,7 @@ class FantasyFootballAgent:
         
         for target, model in self.models.items():
             pred = model.predict([features])[0]
-            predictions[target] = max(0, pred)  # Ensure non-negative predictions
+            predictions[target] = float(max(0, pred))  # Ensure non-negative predictions
             
             # Calculate confidence based on model performance
             r2_score = self.model_performance[target]['r2']
@@ -523,24 +539,109 @@ class FantasyFootballAgent:
         joblib.dump(model_data, model_file)
         self.logger.info("Models saved successfully")
 
+        # Upload to S3
+        if self.s3_client:
+            try:
+                self.s3_client.upload_file(
+                    str(model_file), 
+                    self.s3_bucket, 
+                    self.s3_key,
+                    ExtraArgs={
+                        'Metadata': {
+                            'training-timestamp': datetime.now().isoformat(),
+                            'model-version': 'latest'
+                        }
+                    }
+                )
+                self.logger.info(f"✅ Models uploaded to S3: s3://{self.s3_bucket}/{self.s3_key}")
+                
+                # Also save a timestamped backup
+                backup_key = f"models/backup/fantasy_ai_models_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+                self.s3_client.upload_file(str(model_file), self.s3_bucket, backup_key)
+                self.logger.info(f"📦 Backup saved to S3: s3://{self.s3_bucket}/{backup_key}")
+                
+            except ClientError as e:
+                self.logger.error(f"❌ Failed to upload models to S3: {str(e)}")
+            except Exception as e:
+                self.logger.error(f"❌ Unexpected error uploading to S3: {str(e)}")
+        else:
+            self.logger.warning("⚠️ S3 client not available - models saved locally only")
+
+
     def load_models(self):
-        """Load pre-trained models from the correct directory"""
+        """Load pre-trained models from S3 first, then local disk"""
+        if not self.s3_client:
+            return self._load_models_local_only()
+        
         try:
+            # Try to download from S3 first
             model_file = self.model_dir / 'fantasy_ai_models.pkl'
+            
+            self.logger.info(f"🔍 Checking for models in S3: s3://{self.s3_bucket}/{self.s3_key}")
+            
+            try:
+                # Download from S3
+                self.s3_client.download_file(self.s3_bucket, self.s3_key, str(model_file))
+                self.logger.info("⬇️ Models downloaded from S3")
+                
+                # Get metadata
+                response = self.s3_client.head_object(Bucket=self.s3_bucket, Key=self.s3_key)
+                last_modified = response['LastModified']
+                self.logger.info(f"📅 Models last updated: {last_modified}")
+                
+            except ClientError as e:
+                error_code = e.response['Error']['Code']
+                if error_code == 'NoSuchKey':
+                    self.logger.warning("🔍 No models found in S3, checking local storage...")
+                    return self._load_models_local_only()
+                elif error_code == 'NoSuchBucket':
+                    self.logger.error(f"❌ S3 bucket '{self.s3_bucket}' does not exist!")
+                    return False
+                else:
+                    self.logger.error(f"❌ Error accessing S3: {str(e)}")
+                    return self._load_models_local_only()
+            
+            # Load the downloaded file
             if not model_file.exists():
-                self.logger.warning(f"No saved models found at {model_file}")
+                self.logger.error("❌ Model file not found after S3 download")
                 return False
                 
             model_data = joblib.load(model_file)
             self.models = model_data['models']
             self.model_performance = model_data['performance']
             self.encoders = model_data['encoders']
-            self.logger.info(f"Models loaded successfully from {model_file}")
+            
+            training_timestamp = model_data.get('timestamp', 'unknown')
+            data_size = model_data.get('training_data_size', 'unknown')
+            
+            self.logger.info(f"✅ Models loaded successfully from S3")
+            self.logger.info(f"📊 Model info: trained on {data_size} records at {training_timestamp}")
             return True
+            
         except Exception as e:
-            self.logger.warning(f"Failed to load models: {str(e)}")
+            self.logger.error(f"❌ Failed to load models: {str(e)}")
             return False
         
+    def _load_models_local_only(self):
+        """Fallback: load models from local disk only"""
+        try:
+            model_file = self.model_dir / 'fantasy_ai_models.pkl'
+            
+            if not model_file.exists():
+                self.logger.warning(f"❌ No models found locally at {model_file}")
+                return False
+                
+            model_data = joblib.load(model_file)
+            self.models = model_data['models']
+            self.model_performance = model_data['performance']
+            self.encoders = model_data['encoders']
+            self.logger.info("✅ Models loaded from local storage")
+            return True
+            
+        except Exception as e:
+            self.logger.warning(f"❌ Failed to load local models: {str(e)}")
+            return False
+    
     # Helper methods 
     def _get_team_name(self, team_id: int) -> str:
         """Get team name from team ID"""

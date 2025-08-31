@@ -18,9 +18,9 @@ router = APIRouter()
 settings = get_settings()
 logger = logging.getLogger(__name__)
 
-# Initialize the fantasy agent globally (your original approach)
-fantasy_agent = FantasyFootballAgent(settings.DATABASE_URL)
-
+# Initialize the fantasy agent 
+ml_service = MLService()
+fantasy_agent = ml_service.fantasy_agent  # Use the same instance
 
 # Pydantic models for request/response  
 class TrainModelRequest(BaseModel):

@@ -8,6 +8,7 @@ from ..core.config import Settings
 from ..core.exceptions import PipelineError
 from ..services.football_service import FootballService
 from ..services.ml_service import MLService
+from ..pipeline import etl
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,15 @@ class PipelineOrchestrator:
         """Run ML training pipeline"""
         try:
             logger.info("Starting ML pipeline")
-            
+
+            # Ensure historical data (CSV) is loaded before training models.
+            # try:
+            #     data_dir = getattr(self.settings, "DATA_DIR", "./data")
+            #     # run loader in thread to avoid blocking event loop
+            #     await asyncio.to_thread(etl.load_historical_player_data, self.settings.DATABASE_URL, data_dir)
+            # except Exception as e:
+            #     logger.warning(f"Failed to load historical player data before training: {e}")
+
             success = await self.ml_service.train_all_models(force_retrain=force_retrain)
             
             if success:

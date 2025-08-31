@@ -8,7 +8,7 @@ import {
   Filter, Calendar,
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/v2/fantasy';
+const API_BASE = 'http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/v2/fantasy';
 
 interface FantasyAnalysis {
   gameweek: number;

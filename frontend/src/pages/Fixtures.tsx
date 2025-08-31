@@ -58,7 +58,7 @@ const Fixtures = () => {
     if (status) params.append("status", status);
     
     try {
-      const response = await fetch(`http://localhost:8000/v1/fixtures?${params.toString()}`);
+      const response = await fetch(`http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/v1/fixtures?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -101,7 +101,7 @@ const Fixtures = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/v1/teams`);
+        const response = await fetch(`http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/v1/teams`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

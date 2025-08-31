@@ -37,3 +37,6 @@ click==8.1.7
 
 # HTTP client for health checks
 aiohttp==3.9.1
+
+
+boto3==1.34.131

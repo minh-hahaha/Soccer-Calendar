@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
     DB_ECHO: bool = Field(default=False, env="DB_ECHO")
+    # Add this to your Settings class
+
+    AUTO_INGEST_ON_STARTUP: bool = Field(default=True, description="Run data ingestion automatically on startup")
     
     # ML Configuration
     MODEL_PATH: str = Field(default="./data/models", env="MODEL_PATH")

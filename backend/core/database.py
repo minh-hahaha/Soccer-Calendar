@@ -86,9 +86,46 @@ def init_database():
     """Initialize database tables"""
     try:
         from backend.models.database.base import Base
+        from backend.models.database import football, fantasy  # Import both modules
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables created successfully")
         return True
     except Exception as e:
         logger.error(f"Database initialization failed: {str(e)}")
         raise DatabaseError(f"Database initialization failed: {str(e)}")
+    
+def reset_database():
+    """Reset database by dropping all tables and recreating them"""
+    try:
+        from backend.models.database.base import Base
+        from backend.models.database import football, fantasy  # Import both modules
+        from sqlalchemy import text
+        
+        logger.info("Starting database reset...")
+        
+        # Get all table names and drop them with CASCADE
+        with engine.connect() as conn:
+            # Get all tables in the public schema
+            result = conn.execute(text("""
+                SELECT tablename FROM pg_tables 
+                WHERE schemaname = 'public'
+            """))
+            tables = [row[0] for row in result]
+            
+            # Drop each table with CASCADE
+            for table in tables:
+                conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+            
+            conn.commit()
+        
+        logger.info("All tables dropped successfully with CASCADE")
+        
+        # Recreate all tables
+        Base.metadata.create_all(bind=engine)
+        logger.info("All tables recreated successfully")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Database reset failed: {str(e)}")
+        raise DatabaseError(f"Database reset failed: {str(e)}")

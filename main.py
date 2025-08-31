@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -53,6 +54,34 @@ async def lifespan(app: FastAPI):
         app.state.ml_service = MLService()
         app.state.pipeline_orchestrator = PipelineOrchestrator(settings)
         
+        # Automatic data ingestion on startup
+        if settings.AUTO_INGEST_ON_STARTUP:
+            logger.info("🔄 Running automatic data ingestion...")
+            try:
+                # Import ingestion functions
+                from backend.pipeline.etl import ingest_all_football_data, ingest_players
+                
+                # Check if we have the required API key
+                fd_api_key = os.getenv("FD_API_KEY")
+                if fd_api_key:
+                    logger.info("�� Ingesting football data...")
+                    ingest_all_football_data(fd_api_key, settings.DATABASE_URL, "2025")
+                    logger.info("✅ Football data ingestion completed")
+                else:
+                    logger.warning("⚠️ FD_API_KEY not found - skipping football data ingestion")
+                
+                # Always try to ingest players (uses FPL API, no key required)
+                logger.info("👥 Ingesting player data...")
+                ingest_players(settings.DATABASE_URL)
+                logger.info("✅ Player data ingestion completed")
+                
+            except Exception as e:
+                logger.error(f"❌ Automatic ingestion failed: {str(e)}")
+                # Don't fail startup if ingestion fails
+        else:
+            logger.info("⏭️ Skipping automatic ingestion (AUTO_INGEST_ON_STARTUP=False)")
+        
+
         # Run initial health check
         logger.info("🏥 Running initial health check...")
         health_status = await health_monitor.comprehensive_health_check()
@@ -111,8 +140,7 @@ async def pipeline_exception_handler(request, exc: PipelineError):
 
 # app.include_router(original_api.router, prefix="/v1", tags=["Football Data"])
 # app.include_router(router.router, prefix="/fantasy", tags=["Fantasy Football Agent"])
-app.include_router(login.router, prefix="/login", tags=["getTeam"])
-
+# app.include_router(login.router, prefix="/login", tags=["getTeam"])
 # from backend.pipeline.etl import ingest_all_football_data, ingest_players
 # from backend.pipeline.fpl_history import ingest_fpl_history
 
