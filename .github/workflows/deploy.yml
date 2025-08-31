@@ -63,14 +63,15 @@ jobs:
         
         echo "Deployment initiated - ECS will pull latest image"
 
-    - name: Wait for deployment to stabilize
+    - name: Show deployment status
       run: |
-        echo "Waiting for service to reach stable state..."
-        aws ecs wait services-stable \
-          --cluster $ECS_CLUSTER \
-          --services $ECS_SERVICE \
-          --region $AWS_REGION
-
+          echo "Current deployment status:"
+          aws ecs describe-services \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --query 'services[0].{Status:status,Running:runningCount,Desired:desiredCount,TaskDefinition:taskDefinition}' \
+            --output table
+            
     - name: Get application URL
       id: get-url
       run: |
