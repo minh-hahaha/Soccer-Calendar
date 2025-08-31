@@ -51,27 +51,17 @@ jobs:
         
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    - name: Download current task definition
+    - name: Deploy to ECS
       run: |
-        aws ecs describe-task-definition \
-          --task-definition $ECS_TASK_DEFINITION \
-          --query taskDefinition > task-definition.json
-
-    - name: Update task definition with new image
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task-definition.json
-        container-name: football-ai-container
-        image: ${{ steps.build-image.outputs.image }}
-
-    - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: true
+        echo "Deploying new image to ECS..."
+        
+        # Force ECS to deploy with the latest image
+        aws ecs update-service \
+          --cluster $ECS_CLUSTER \
+          --service $ECS_SERVICE \
+          --force-new-deployment
+        
+        echo "Deployment initiated - ECS will pull latest image"
 
     - name: Wait for deployment to stabilize
       run: |
@@ -115,7 +105,8 @@ jobs:
           --services $ECS_SERVICE \
           --query 'services[0].{Status:status,Running:runningCount,Desired:desiredCount,TaskDefinition:taskDefinition}' \
           --output table
-   # Optional: Run pipeline after successful deployment
+
+  # Run pipeline after successful deployment
   run-pipeline:
     name: Run Data Pipeline
     runs-on: ubuntu-latest
