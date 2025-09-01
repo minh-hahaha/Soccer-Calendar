@@ -154,10 +154,10 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 ## 📈 Performance & Scalability
 
 - **Response Time**: < 200ms for AI predictions
-- **Model Accuracy**: 99%+ R² score for player performance prediction
+- **Model Accuracy**: 80%+ R² score for player performance prediction
 - **Scalability**: Auto-scaling ECS tasks based on load
 - **Availability**: 99.9% uptime with health monitoring
-- **Data Processing**: Handles 27,000+ historical player records
+- **Data Processing**: Handles 3,000+ historical player records
 
 ## 🔄 CI/CD Pipeline
 
