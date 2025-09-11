@@ -1,13 +1,13 @@
-# 🏈 Football AI Analytics Platform
+# Football AI Analytics Platform
 
 A production-ready **AI-powered Fantasy Football analytics platform** built with FastAPI, featuring machine learning models, automated data pipelines, and cloud deployment on AWS ECS.
 
-## 🚀 Live Demo
+## Live Demo
 
 - **API Documentation**: [http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/docs](http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/docs)
 - **Health Check**: [http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/health](http://football-ai-alb-1378244267.us-east-2.elb.amazonaws.com/health)
 
-## 🎯 Project Overview
+## Project Overview
 
 This platform provides **AI-powered insights** for Fantasy Premier League managers by:
 
@@ -17,7 +17,7 @@ This platform provides **AI-powered insights** for Fantasy Premier League manage
 - **Processing real-time data** from Premier League APIs
 - **Automated data pipelines** with ETL processes
 
-## 🏗️ Architecture & Technologies
+## Architecture & Technologies
 
 ### Backend Stack
 - **FastAPI** - High-performance async web framework
@@ -44,27 +44,27 @@ This platform provides **AI-powered insights** for Fantasy Premier League manage
 - **Fantasy Premier League API** - Player statistics
 - **Historical CSV datasets** - Multi-season player performance
 
-## 🔧 Key Features
+## Key Features
 
-### 🤖 AI-Powered Analytics
+### AI-Powered Analytics
 - **Player Performance Prediction**: ML models predict points, goals, assists, and clean sheets
 - **Transfer Recommendations**: AI suggests optimal transfers based on predicted performance gains
 - **Captain Analysis**: Intelligent captain selection with risk assessment
 - **Differential Picks**: Low-ownership players with high potential
 
-### 📊 Data Pipeline
+### Data Pipeline
 - **Automated Ingestion**: Real-time data collection from multiple APIs
 - **ETL Processing**: Clean, transform, and validate data
 - **Historical Analysis**: Multi-season data processing (2020-2025)
 - **Model Training**: Automated ML model training and validation
 
-### 🏥 Production Monitoring
+### Production Monitoring
 - **Health Checks**: Comprehensive system monitoring
 - **Performance Metrics**: Model accuracy and system performance tracking
 - **Logging**: Structured logging with different levels
 - **Error Handling**: Graceful error recovery and reporting
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.11+
@@ -102,7 +102,7 @@ make docker-run
 git push origin main
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Core Endpoints
 - `GET /health` - System health check
@@ -132,7 +132,7 @@ curl "http://localhost:8000/v2/fantasy/transfer-targets?max_price=12.0&min_predi
 curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15&budget=2.0"
 ```
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -151,7 +151,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
                        └─────────────────┘
 ```
 
-## 📈 Performance & Scalability
+## Performance & Scalability
 
 - **Response Time**: < 200ms for AI predictions
 - **Model Accuracy**: 80%+ R² score for player performance prediction
@@ -159,7 +159,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - **Availability**: 99.9% uptime with health monitoring
 - **Data Processing**: Handles 3,000+ historical player records
 
-## 🔄 CI/CD Pipeline
+## CI/CD Pipeline
 
 ### Automated Deployment
 1. **Code Push** → GitHub Actions trigger
@@ -175,7 +175,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - **AWS ECS** for container orchestration
 - **S3** for model storage and backups
 
-## 🛠️ Development Tools
+## Development Tools
 
 ### Code Quality
 - **Black** - Code formatting
@@ -189,7 +189,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - **Performance metrics** tracking
 - **Error handling** and recovery
 
-## 📊 Data Pipeline
+## Data Pipeline
 
 ### ETL Process
 1. **Extract** - Fetch data from Premier League APIs
@@ -203,7 +203,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - **Fantasy Premier League API** - Player statistics, ownership
 - **Historical datasets** - Multi-season performance data
 
-## 🔐 Security & Best Practices
+## Security & Best Practices
 
 - **Environment variables** for sensitive data
 - **Docker secrets** for production credentials
@@ -212,7 +212,7 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - **Rate limiting** (planned)
 - **Authentication** (planned)
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 - [ ] **Real-time notifications** for price changes
 - [ ] **Advanced analytics dashboard** with charts
@@ -221,11 +221,11 @@ curl "http://localhost:8000/v2/fantasy/ai-analyze?current_team=1,2,3,4,5,6,7,8,9
 - [ ] **Advanced ML models** with deep learning
 - [ ] **Performance optimization** with Redis caching
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -234,7 +234,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 5. Open a Pull Request
 
 ---
-
-**Built with ❤️ using FastAPI, AWS, and Machine Learning**
-
-*This project demonstrates full-stack development skills, cloud deployment, machine learning implementation, and production-ready software engineering practices.*
